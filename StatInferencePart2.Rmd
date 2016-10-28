@@ -1,0 +1,76 @@
+---
+title: "StatInferencePart2.Rmd"
+output: pdf_document
+---
+## Part 2: Basic inferential data analysis.
+
+Now in the second portion of the project, we're going to analyze the ToothGrowth data in the R datasets package.
+
+1. Load the ToothGrowth data and perform some basic exploratory data analyses
+
+```{r echo=TRUE}
+library(ggplot2)
+library(dplyr)
+library(datasets)
+data(ToothGrowth)
+str(ToothGrowth)
+head(ToothGrowth)
+```
+
+2. Provide a basic summary of the data.
+
+```{r echo=TRUE}
+summary(ToothGrowth)
+```
+
+The plot shows that the length of the tooth appears to be related to the amount of dosage.
+
+```{r echo=TRUE}
+ggplot(data=ToothGrowth, aes(x=as.factor(dose), y=len, fill=supp)) +
+    geom_bar(stat="identity") +
+    facet_grid(. ~ supp) +
+    xlab("Dose") +
+    ylab("Tooth Length") +
+    guides(fill=guide_legend(title="Supplement"))
+```
+
+3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering).
+
+```{r echo=TRUE}
+t.test(len ~ supp, data = ToothGrowth)
+```
+
+The p-value is equal to 0.06063. The 95 percent confidence interval is -.1710156 to 7.5710156. This contains 0 for the t-test. This means we fail to reject that the other supplement has no affect on tooth growth. 
+
+Split the doses into the 3 subgroups: 0.5 - 1 (A), 1 - 2 (B), and 0.5 - 2 (C).
+
+```{r echo=TRUE}
+ToothGrowth.dose_A <- subset (ToothGrowth, dose %in% c(0.5, 1.0)) 
+ToothGrowth.dose_B <- subset (ToothGrowth, dose %in% c(1.0, 2.0)) 
+ToothGrowth.dose_C <- subset (ToothGrowth, dose %in% c(0.5, 2.0)) 
+```
+
+Run the t-test for all 3 subgroups: 0.5 - 1 (A), 1 - 2 (B), and 0.5 - 2 (C)
+
+```{r echo=TRUE}
+t.test(len ~ dose, data = ToothGrowth.dose_A)
+```
+The p-value is less than 0.05, confidence interval does not contain 0. The mean in group 0.5 = 10.605 and mean in group 1 = 19.735
+
+```{r echo=TRUE}
+t.test(len ~ dose, data = ToothGrowth.dose_B)
+```
+The p-value is less than 0.05, confidence interval does not contain 0. The mean in group 1 = 19.735 and mean in group 2 = 26.100
+
+```{r echo=TRUE}
+t.test(len ~ dose, data = ToothGrowth.dose_C)
+```
+The p-value is less than 0.05, confidence interval does not contain 0. The mean in group 0.5 = 10.605 and mean in group 2 = 26.100
+
+The null hypothesis can be rejected. As the dose increases from 0.5 to 2, the mean length of the tooth also increases from 10.605 to 26.100. 
+
+4. State your conclusions and the assumptions needed for your conclusions.
+
+We can conclude that increasing the dose of a supplement (regardless of type) will increase tooth length for guinea pigs.
+
+We assumed that the populations of guinea pigs are similar and randomly selected.
